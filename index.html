@@ -98,16 +98,17 @@
 
   /* Language switch with sliding thumb */
   .lang {
-    position: relative; display: grid; grid-template-columns: 1fr 1fr;
+    position: relative; display: grid; grid-template-columns: repeat(3, 1fr);
     padding: 4px; border-radius: 999px;
     background: var(--surface); border: 1.5px solid var(--line);
   }
   .lang-thumb {
-    position: absolute; inset: 4px auto 4px 4px; width: calc(50% - 4px);
+    position: absolute; inset: 4px auto 4px 4px; width: calc((100% - 8px) / 3);
     border-radius: 999px; background: var(--accent);
     transition: transform .35s var(--ease);
   }
-  .lang[data-lang="en"] .lang-thumb { transform: translateX(100%); }
+  .lang[data-lang="uk"] .lang-thumb { transform: translateX(100%); }
+  .lang[data-lang="en"] .lang-thumb { transform: translateX(200%); }
   .lang button {
     position: relative; z-index: 1;
     min-width: 58px; padding: 7px 14px;
@@ -307,13 +308,11 @@
   .code-folded .stack i:nth-child(3) { top: 21px; right: 12px; }
   .code[data-open="true"] .code-folded { display: none; }
 
-  /* Smooth height collapse via grid rows */
+  /* Collapse: height is animated from JS (works the same in Safari, Chrome, Firefox) */
   .code-body {
-    display: grid; grid-template-rows: 0fr;
-    transition: grid-template-rows .45s var(--ease);
+    height: 0; overflow: hidden;
+    transition: height .45s var(--ease);
   }
-  .code[data-open="true"] .code-body { grid-template-rows: 1fr; }
-  .code-body > div { overflow: hidden; min-height: 0; }
   .code-body pre {
     margin: 0; padding: 24px 26px 28px;
     font: 400 13.5px/1.75 var(--mono);
@@ -366,7 +365,7 @@
   }
   @media (max-width: 560px) {
     .brand span:last-child { font-size: 17px; }
-    .lang button { min-width: 48px; padding: 7px 10px; font-size: 14px; }
+    .lang button { min-width: 42px; padding: 7px 8px; font-size: 13.5px; }
     .prompt-head { grid-template-columns: 48px 1fr; gap: 14px; }
     .prompt-icon { width: 48px; height: 48px; font-size: 22px; border-radius: 13px; }
     .code-bar { padding: 12px 14px; }
@@ -389,6 +388,7 @@
   <div class="lang" role="group" aria-label="Language" data-lang="ru">
     <span class="lang-thumb" aria-hidden="true"></span>
     <button type="button" data-set-lang="ru" aria-pressed="true">RU</button>
+    <button type="button" data-set-lang="uk" aria-pressed="false">UA</button>
     <button type="button" data-set-lang="en" aria-pressed="false">EN</button>
   </div>
 </header>
@@ -467,6 +467,42 @@
       },
       footer: "PPC Prompt Library. Промты рассчитаны на Claude - в других ИИ результаты могут отличаться."
     },
+    uk: {
+      docTitle: "PPC Prompt Library - промпти для Claude",
+      navLabel: "Промпти",
+      sidebarTitle: "Бібліотека промптів",
+      heroTitle: "Промпти для Claude у роботі з Google Ads",
+      heroLead: "Робочі промпти PPC-спеціаліста: аналіз бренду та сайту, оголошення, товарний фід. Скопіюйте промпт, заповніть поля й надішліть у Claude.",
+      noticeTitle: "Промпти написані для Claude",
+      noticeText: "Усі промпти створені й протестовані в Claude (claude.ai). В інших ШІ, наприклад ChatGPT або Gemini, результат може відрізнятися: моделі по-різному виконують покрокові інструкції, правила форматування та зупинки для вибору.",
+      howTitle: "Як користуватися",
+      howSteps: [
+        ["Оберіть промпт", "У меню або нижче на сторінці. Кожен промпт має опис: для чого він і що підготувати."],
+        ["Скопіюйте", "Кнопка «Копіювати» працює і в згорнутому вигляді. Щоб прочитати текст, натисніть «Показати промпт»."],
+        ["Заповніть поля", "Поля для заповнення підсвічені жовтим: посилання на сайт, файли, ринок."],
+        ["Надішліть у Claude", "Вставте промпт у новий чат. Для більшості промптів потрібен увімкнений вебпошук."]
+      ],
+      kicker: "Промпт",
+      whenLabel: "Коли використовувати",
+      stepsLabel: "Як користуватися",
+      needsLabel: "Що знадобиться",
+      codeLabel: "Промпт",
+      codeTitle: "Скопіювати й заповнити",
+      show: "Показати промпт",
+      hide: "Згорнути промпт",
+      copy: "Копіювати",
+      copied: "Скопійовано",
+      toast: "Промпт скопійовано",
+      copyFail: "Не вдалося скопіювати - розгорніть промпт і виділіть текст вручну",
+      folded: function (n) {
+        var m10 = n % 10, m100 = n % 100, w;
+        if (m10 === 1 && m100 !== 11) w = "рядок";
+        else if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) w = "рядки";
+        else w = "рядків";
+        return "Промпт згорнуто - " + n + " " + w + ". Копіювання працює і без розгортання.";
+      },
+      footer: "PPC Prompt Library. Промпти розраховані на Claude - в інших ШІ результати можуть відрізнятися."
+    },
     en: {
       docTitle: "PPC Prompt Library - prompts for Claude",
       navLabel: "Prompts",
@@ -521,9 +557,10 @@
 
   function detectLang() {
     var q = new URLSearchParams(location.search).get("lang");
-    if (q === "ru" || q === "en") return q;
+    if (q === "ua") q = "uk";
+    if (q === "ru" || q === "uk" || q === "en") return q;
     var saved = store("ppc-lang");
-    if (saved === "ru" || saved === "en") return saved;
+    if (saved === "ru" || saved === "uk" || saved === "en") return saved;
     return "ru";
   }
 
@@ -565,6 +602,38 @@
         return ok;
       } catch (e) { return false; }
     }
+  }
+
+  /* ---------- Collapse animation ---------- */
+  function afterTransition(el, fn) {
+    var done = false;
+    function finish(e) {
+      if (e && e.propertyName !== "height") return;
+      if (done) return;
+      done = true;
+      el.removeEventListener("transitionend", finish);
+      fn();
+    }
+    el.addEventListener("transitionend", finish);
+    setTimeout(finish, 650);
+  }
+
+  function expand(body) {
+    body.removeAttribute("inert");
+    body.style.height = "0px";
+    var target = body.scrollHeight;
+    void body.offsetHeight;
+    body.style.height = target + "px";
+    afterTransition(body, function () {
+      if (body.closest(".code").getAttribute("data-open") === "true") body.style.height = "auto";
+    });
+  }
+
+  function collapse(body) {
+    body.style.height = body.scrollHeight + "px";
+    void body.offsetHeight;
+    body.style.height = "0px";
+    body.setAttribute("inert", "");
   }
 
   /* ---------- Rendering ---------- */
@@ -642,8 +711,8 @@
               '</div>' +
             '</div>' +
             '<div class="code-folded"><span class="stack" aria-hidden="true"><i></i><i></i><i></i></span><span>' + esc(t("folded")(lines)) + '</span></div>' +
-            '<div class="code-body" id="' + bodyId + '"' + (isOpen ? '' : ' inert') + '>' +
-              '<div><pre>' + highlight(text) + '</pre></div>' +
+            '<div class="code-body" id="' + bodyId + '" style="height:' + (isOpen ? 'auto' : '0px') + '"' + (isOpen ? '' : ' inert') + '>' +
+              '<pre>' + highlight(text) + '</pre>' +
             '</div>' +
           '</div>' +
         '</section>';
@@ -690,7 +759,7 @@
         lang = next;
         store("ppc-lang", lang);
         var url = new URL(location.href);
-        url.searchParams.set("lang", lang);
+        url.searchParams.set("lang", lang === "uk" ? "ua" : lang);
         history.replaceState(null, "", url);
         renderAll();
       }
@@ -709,8 +778,8 @@
       btn.setAttribute("aria-expanded", String(open));
       btn.querySelector("span").textContent = open ? t("hide") : t("show");
       var body = box.querySelector(".code-body");
-      if (open) { body.removeAttribute("inert"); openIds.add(id); }
-      else { body.setAttribute("inert", ""); openIds.delete(id); }
+      if (open) { expand(body); openIds.add(id); }
+      else { collapse(body); openIds.delete(id); }
     }
 
     if (btn.getAttribute("data-action") === "copy") {
