@@ -1232,7 +1232,7 @@ FORMAT
       steps: [
         "Скопируйте промт и вставьте в новый чат Claude.",
         "Заполните подсвеченные поля: ссылка на магазин, фид или список заголовков с Item ID, поисковые запросы (например, выгрузка Search terms).",
-        "Claude проверит текущие заголовки и покажет 6 форматов на реальном товаре. Выберите формат и приоритет цифрами.",
+        "Claude проверит текущие заголовки и покажет 4 формата на реальном товаре. Выберите формат и приоритет цифрами.",
         "Получите .xlsx файл с новыми заголовками, затем выберите перепроверку: по сайту, по политике или обе."
       ],
       needs: ["Веб-поиск", "Создание файлов", "Фид в .xlsx или .csv"],
@@ -1299,44 +1299,34 @@ Performance Max / Shopping.
    для обоих вопросов. Если нет - дай обычные нумерованные списки,
    но задай вопросы в любом случае.
 
-   Вопрос A - структура заголовка. Предложи шесть форматов ниже. Покажи
+   Вопрос A - структура заголовка. Предложи четыре формата ниже. Покажи
    каждый на одном и том же реальном товаре из фида с количеством
    символов, чтобы я увидел реальный результат до выбора. Если формат
    нельзя построить для этого каталога, потому что нужного атрибута нет
    на страницах товаров, скажи об этом вместо выдуманного примера.
 
-     1. Category Keyword | Format | Count | Brand
-        Начинается с запроса в том виде, как его ищут. Лучше всего
-        для небрендового спроса.
+     1. Relevant Keyword | Key Variant Info | Product Uniqueness | Brand
+        Key Variant Info - вкус, вариант или количество, то, что реально
+        влияет на выбор. Product Uniqueness - одно проверяемое отличие,
+        не рекламный claim. Бренд в конце.
+        Пример: Teeth Whitening Strips | 14 Strips | Hydroxyapatite
+        Enamel Protection | Brand
 
      2. Problem/Outcome Keyword | Product Type | Format | Brand
-        Начинается с того, что клиент хочет решить. Самое сильное
-        совпадение с намерением и самый высокий риск по политике -
-        формулировка результата должна подтверждаться на сайте и не
-        должна подразумевать лечение, излечение или гарантированный
-        результат.
+        Начинается с проблемы, которую решает покупатель: самое точное
+        попадание в интент, но и самый высокий риск по политикам.
+        Формулировка результата должна подтверждаться сайтом и не может
+        обещать лечение или гарантированный эффект.
 
-     3. Brand | Product Name | Active Ingredient + Strength | Format | Count
-        Максимум структурированных деталей. Самый длинный из шести.
-        Лучше всего там, где выбор определяют ингредиент и дозировка.
-
-     4. Brand | Product Type | For [Audience] | Key Attribute | Size
-        Только если аудитория прямо указана на странице товара.
-        Никогда не выводи аудиторию из изображений или тона.
-
-     5. Product Type | For [Use Case] | Variant | Brand
+     3. Product Type | For [Use Case] | Variant | Brand
         Только если сценарий использования прямо указан на странице
         товара.
 
-     6. Relevant Keyword | Key Variant Info | Product Uniqueness | Brand
-        Key Variant Info - вкус, вариант или количество, в зависимости
-        от того, что реально определяет выбор для этого товара, и только
-        если это есть на странице. Product Uniqueness - одно проверяемое
-        отличительное свойство, а не рекламное заявление. Бренд
-        завершает заголовок.
-        Пример ожидаемого результата:
-        Teeth Whitening Strips | 14 Strips | Hydroxyapatite Enamel
-        Protection | XWhite
+     4. Brand | Product Name | Active Ingredient + Strength | Format | Count
+        Бренд вперёд выносим редко: ключевое слово на первом месте даёт
+        больший охват и более высокую позицию по поисковому запросу.
+        Без конкретных причин, данных или прямого запроса клиента бренд
+        в начало не ставим.
 
    Вопрос B - приоритет оптимизации:
      1. Покрытие ключевых слов - вынести вперёд запросы из файла
@@ -1487,7 +1477,7 @@ Performance Max / Shopping.
       steps: [
         "Скопіюйте промпт і вставте в новий чат Claude.",
         "Заповніть підсвічені поля: посилання на магазин, фід або список заголовків з Item ID, пошукові запити (наприклад, вивантаження Search terms).",
-        "Claude перевірить поточні заголовки й покаже 6 форматів на реальному товарі. Оберіть формат і пріоритет цифрами.",
+        "Claude перевірить поточні заголовки й покаже 4 формати на реальному товарі. Оберіть формат і пріоритет цифрами.",
         "Отримайте .xlsx файл з новими заголовками, потім оберіть перевірку: за сайтом, за політикою або обидві."
       ],
       needs: ["Вебпошук", "Створення файлів", "Фід у .xlsx або .csv"],
@@ -1554,43 +1544,34 @@ Performance Max / Shopping.
    для обох запитань. Якщо немає - дай звичайні нумеровані списки,
    але постав запитання в будь-якому разі.
 
-   Запитання A - структура заголовка. Запропонуй шість форматів нижче.
+   Запитання A - структура заголовка. Запропонуй чотири формати нижче.
    Покажи кожен на тому самому реальному товарі з фіду з кількістю
    символів, щоб я побачив реальний результат до вибору. Якщо формат
    неможливо побудувати для цього каталогу, бо потрібного атрибута
    немає на сторінках товарів, скажи про це замість вигаданого прикладу.
 
-     1. Category Keyword | Format | Count | Brand
-        Починається із запиту в тому вигляді, як його шукають.
-        Найкраще для небрендового попиту.
+     1. Relevant Keyword | Key Variant Info | Product Uniqueness | Brand
+        Key Variant Info - смак, варіант або кількість, те, що реально
+        впливає на вибір. Product Uniqueness - одна перевірювана
+        відмінність, не рекламний claim. Бренд у кінці.
+        Приклад: Teeth Whitening Strips | 14 Strips | Hydroxyapatite
+        Enamel Protection | Brand
 
      2. Problem/Outcome Keyword | Product Type | Format | Brand
-        Починається з того, що клієнт хоче вирішити. Найсильніший
-        збіг із наміром і найвищий ризик щодо політики - формулювання
-        результату має підтверджуватися на сайті й не повинно
-        передбачати лікування, зцілення чи гарантований результат.
+        Починається з проблеми, яку вирішує покупець: найточніше
+        влучання в інтент, але й найвищий ризик за політиками.
+        Формулювання результату має підтверджуватися сайтом і не може
+        обіцяти лікування чи гарантований ефект.
 
-     3. Brand | Product Name | Active Ingredient + Strength | Format | Count
-        Максимум структурованих деталей. Найдовший із шести.
-        Найкраще там, де вибір визначають інгредієнт і дозування.
-
-     4. Brand | Product Type | For [Audience] | Key Attribute | Size
-        Лише якщо аудиторію прямо вказано на сторінці товару.
-        Ніколи не виводь аудиторію із зображень чи тону.
-
-     5. Product Type | For [Use Case] | Variant | Brand
-        Лише якщо сценарій використання прямо вказано на сторінці
+     3. Product Type | For [Use Case] | Variant | Brand
+        Тільки якщо сценарій використання прямо вказаний на сторінці
         товару.
 
-     6. Relevant Keyword | Key Variant Info | Product Uniqueness | Brand
-        Key Variant Info - смак, варіант або кількість, залежно від
-        того, що реально визначає вибір для цього товару, і лише якщо
-        це є на сторінці. Product Uniqueness - одна перевірювана
-        відмінна властивість, а не рекламна заява. Бренд завершує
-        заголовок.
-        Приклад очікуваного результату:
-        Teeth Whitening Strips | 14 Strips | Hydroxyapatite Enamel
-        Protection | XWhite
+     4. Brand | Product Name | Active Ingredient + Strength | Format | Count
+        Бренд наперед виносимо рідко: ключове слово на першому місці
+        дає більше охоплення та вищу позицію за пошуковим запитом.
+        Без конкретних причин, даних або прямого запиту клієнта бренд
+        на початок не ставимо.
 
    Запитання B - пріоритет оптимізації:
      1. Покриття ключових слів - винести вперед запити з файлу
@@ -1742,7 +1723,7 @@ Performance Max / Shopping.
       steps: [
         "Copy the prompt and paste it into a new Claude chat.",
         "Fill in the highlighted fields: store link, feed or title list with Item IDs, search terms (for example, a Search terms export).",
-        "Claude audits the current titles and renders 6 formats on a real product. Pick the format and priority with numbers.",
+        "Claude audits the current titles and renders 4 formats on a real product. Pick the format and priority with numbers.",
         "Get an .xlsx file with the new titles, then choose a re-check: against the site, against policy, or both."
       ],
       needs: ["Web search", "File creation", "Feed as .xlsx or .csv"],
@@ -1804,43 +1785,33 @@ STEP 1 - RESEARCH AND DIAGNOSIS (do this first, then stop)
    questions. If it does not, present plain numbered lists - but ask
    either way.
 
-   Question A - title structure. Offer the six formats below. Render each
+   Question A - title structure. Offer the four formats below. Render each
    one on the same real product from the feed, with the character count,
    so I can see the actual result before choosing. If a format cannot be
    built for this catalogue because a required attribute is absent from
    the product pages, say so instead of rendering an invented example.
 
-     1. Category Keyword | Format | Count | Brand
-        Leads with the term as it appears in search. Best for
-        non-branded demand.
+     1. Relevant Keyword | Key Variant Info | Product Uniqueness | Brand
+        Key variant info means flavour, variant or count - whatever
+        actually drives the choice. Product uniqueness means one
+        verifiable difference, not a promotional claim. Brand at the end.
+        Example: Teeth Whitening Strips | 14 Strips | Hydroxyapatite
+        Enamel Protection | Brand
 
      2. Problem/Outcome Keyword | Product Type | Format | Brand
-        Leads with what the customer is trying to solve. Strongest
-        intent match, highest policy risk - the outcome wording must be
-        traceable to the site and must not imply treatment, cure or a
-        guaranteed result.
+        Leads with the problem the shopper is solving: the most precise
+        intent match, but also the highest policy risk. The outcome
+        wording must be supported by the site and cannot promise
+        treatment or a guaranteed effect.
 
-     3. Brand | Product Name | Active Ingredient + Strength | Format | Count
-        Maximum structured detail. Longest of the six. Best where
-        ingredient and dosage drive the decision.
+     3. Product Type | For [Use Case] | Variant | Brand
+        Only if the use case is explicitly stated on the product page.
 
-     4. Brand | Product Type | For [Audience] | Key Attribute | Size
-        Only usable where the audience is explicitly stated on the
-        product page. Never infer audience from imagery or tone.
-
-     5. Product Type | For [Use Case] | Variant | Brand
-        Only usable where the use case is explicitly stated on the
-        product page.
-
-     6. Relevant Keyword | Key Variant Info | Product Uniqueness | Brand
-        Key variant info means flavour, variant or count - whichever is
-        the actual decision driver for that product, included only if
-        present on the page. Product uniqueness means one verifiable
-        differentiating property, not a promotional claim. Brand closes
-        the title.
-        Example of the intended result:
-        Teeth Whitening Strips | 14 Strips | Hydroxyapatite Enamel
-        Protection | XWhite
+     4. Brand | Product Name | Active Ingredient + Strength | Format | Count
+        Put the brand first only rarely: a keyword in the first position
+        gives more reach and a higher position for the search query.
+        Without specific reasons, data or a direct client request, do not
+        put the brand first.
 
    Question B - optimisation priority:
      1. Keyword coverage - front-load the terms from the search terms file

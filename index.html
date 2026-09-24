@@ -173,6 +173,9 @@
     border-left: 4px solid var(--accent);
     border-radius: var(--radius-md); box-shadow: var(--shadow);
   }
+  .notice + .notice { margin-top: -24px; }
+  .notice--base { border-left-color: #D99A1E; }
+  .notice--base .notice-icon { background: var(--fill-bg); color: var(--fill-ink); }
   .notice-icon {
     display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%;
     background: var(--accent-soft); color: var(--accent); font: 700 17px/1 var(--font);
@@ -412,6 +415,14 @@
         </div>
       </aside>
 
+      <aside class="notice notice--base">
+        <span class="notice-icon" aria-hidden="true">✎</span>
+        <div>
+          <strong data-i18n="baseTitle"></strong>
+          <p data-i18n="baseText"></p>
+        </div>
+      </aside>
+
       <h2 class="howto-title" data-i18n="howTitle"></h2>
       <ol class="howto" id="howto"></ol>
     </section>
@@ -439,6 +450,8 @@
       heroLead: "Рабочие промты PPC-специалиста: анализ бренда и сайта, объявления, товарный фид. Скопируйте промт, заполните поля и отправьте в Claude.",
       noticeTitle: "Промты написаны для Claude",
       noticeText: "Все промты созданы и протестированы в Claude (claude.ai). В других ИИ, например ChatGPT или Gemini, результат может отличаться: модели по-разному выполняют пошаговые инструкции, правила форматирования и остановки для выбора.",
+      baseTitle: "Это база, а не готовый результат",
+      baseText: "Промты - не финальная версия выполненной задачи, а сборка моментов, которые чаще всего прописывают в таких задачах. Они дают основную информацию для дальнейшей работы с ней.",
       howTitle: "Как пользоваться",
       howSteps: [
         ["Выберите промт", "В меню или ниже на странице. У каждого промта есть описание: для чего он и что подготовить."],
@@ -475,6 +488,8 @@
       heroLead: "Робочі промпти PPC-спеціаліста: аналіз бренду та сайту, оголошення, товарний фід. Скопіюйте промпт, заповніть поля й надішліть у Claude.",
       noticeTitle: "Промпти написані для Claude",
       noticeText: "Усі промпти створені й протестовані в Claude (claude.ai). В інших ШІ, наприклад ChatGPT або Gemini, результат може відрізнятися: моделі по-різному виконують покрокові інструкції, правила форматування та зупинки для вибору.",
+      baseTitle: "Це база, а не готовий результат",
+      baseText: "Промпти - не фінальна версія виконаного завдання, а збірка моментів, які найчастіше прописують у таких задачах. Вони дають основну інформацію для подальшої роботи з нею.",
       howTitle: "Як користуватися",
       howSteps: [
         ["Оберіть промпт", "У меню або нижче на сторінці. Кожен промпт має опис: для чого він і що підготувати."],
@@ -511,6 +526,8 @@
       heroLead: "Working prompts for PPC specialists: brand and website analysis, ad copy, product feed. Copy a prompt, fill in the fields and send it to Claude.",
       noticeTitle: "These prompts are written for Claude",
       noticeText: "Every prompt was built and tested in Claude (claude.ai). In other AI tools such as ChatGPT or Gemini, results may differ: models follow step-by-step instructions, formatting rules and selection stops differently.",
+      baseTitle: "A starting point, not a finished result",
+      baseText: "These prompts are not the final version of a completed task. They collect the points most often specified for this kind of work and give you the core information to build on.",
       howTitle: "How to use",
       howSteps: [
         ["Pick a prompt", "From the menu or further down the page. Each prompt explains what it is for and what to prepare."],
