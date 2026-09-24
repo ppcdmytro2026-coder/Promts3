@@ -1,0 +1,735 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PPC Prompt Library - промты для Claude</title>
+<meta name="description" content="Рабочие промты для Claude в работе с Google Ads: анализ бренда и сайта, объявления, товарный фид.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  /* ---------- Tokens ---------- */
+  :root {
+    --bg: #F2F4F7;
+    --surface: #FFFFFF;
+    --surface-2: #F7F8FA;
+    --ink: #172031;
+    --muted: #5A6477;
+    --line: #E1E5EC;
+    --accent: #1D5BB5;
+    --accent-ink: #FFFFFF;
+    --accent-soft: #E7EFFB;
+    --icon-bg: #FCEFDC;
+    --fill-bg: #FFEFB8;
+    --fill-ink: #734800;
+    --ok: #1E7F4C;
+    --code-bg: #FBFCFD;
+
+    --radius-lg: 18px;
+    --radius-md: 12px;
+    --radius-sm: 8px;
+    --shadow: 0 1px 2px rgb(16 24 40 / .05), 0 12px 32px -18px rgb(16 24 40 / .22);
+    --header-h: 68px;
+    --sidebar-w: 292px;
+
+    --font: "Onest", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    --ease: cubic-bezier(.2, .7, .2, 1);
+    color-scheme: light dark;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #10141B;
+      --surface: #171C25;
+      --surface-2: #1C2230;
+      --ink: #E6EAF1;
+      --muted: #98A2B3;
+      --line: #2A3242;
+      --accent: #6FA6FF;
+      --accent-ink: #0D1522;
+      --accent-soft: #1B2A44;
+      --icon-bg: #2E261A;
+      --fill-bg: #3B2F10;
+      --fill-ink: #F4C95D;
+      --ok: #4CC38A;
+      --code-bg: #141922;
+      --shadow: 0 1px 2px rgb(0 0 0 / .3), 0 16px 36px -20px rgb(0 0 0 / .6);
+    }
+  }
+
+  /* ---------- Base ---------- */
+  *, *::before, *::after { box-sizing: border-box; }
+  html { scroll-behavior: smooth; scroll-padding-top: calc(var(--header-h) + 20px); }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font: 400 16px/1.6 var(--font);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  a { color: inherit; }
+  :focus-visible { outline: 3px solid color-mix(in srgb, var(--accent) 55%, transparent); outline-offset: 2px; border-radius: 6px; }
+
+  /* ---------- Header ---------- */
+  .topbar {
+    position: sticky; top: 0; z-index: 30;
+    height: calc(var(--header-h) + env(safe-area-inset-top, 0px));
+    padding: env(safe-area-inset-top, 0px) clamp(16px, 3vw, 32px) 0;
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    background: color-mix(in srgb, var(--bg) 82%, transparent);
+    backdrop-filter: saturate(1.4) blur(14px);
+    -webkit-backdrop-filter: saturate(1.4) blur(14px);
+    border-bottom: 1px solid var(--line);
+  }
+  .brand {
+    display: inline-flex; align-items: center; gap: 10px;
+    font-weight: 700; font-size: 19px; letter-spacing: -.01em;
+    color: var(--accent); text-decoration: none;
+  }
+  .brand-mark {
+    display: grid; place-items: center;
+    width: 34px; height: 34px; border-radius: 10px;
+    background: var(--accent-soft); font-size: 17px;
+  }
+
+  /* Language switch with sliding thumb */
+  .lang {
+    position: relative; display: grid; grid-template-columns: 1fr 1fr;
+    padding: 4px; border-radius: 999px;
+    background: var(--surface); border: 1.5px solid var(--line);
+  }
+  .lang-thumb {
+    position: absolute; inset: 4px auto 4px 4px; width: calc(50% - 4px);
+    border-radius: 999px; background: var(--accent);
+    transition: transform .35s var(--ease);
+  }
+  .lang[data-lang="en"] .lang-thumb { transform: translateX(100%); }
+  .lang button {
+    position: relative; z-index: 1;
+    min-width: 58px; padding: 7px 14px;
+    font: 700 15px/1 var(--font); letter-spacing: .02em;
+    color: var(--accent); background: none; border: 0; border-radius: 999px; cursor: pointer;
+    transition: color .25s var(--ease);
+  }
+  .lang button[aria-pressed="true"] { color: var(--accent-ink); }
+
+  /* ---------- Layout ---------- */
+  .layout {
+    display: grid; grid-template-columns: var(--sidebar-w) minmax(0, 1fr);
+    max-width: 1320px; margin: 0 auto;
+  }
+
+  .sidebar {
+    position: sticky; top: var(--header-h);
+    height: calc(100dvh - var(--header-h));
+    overflow-y: auto; padding: 28px 18px 40px;
+    border-right: 1px solid var(--line);
+  }
+  .sidebar-title {
+    margin: 0 12px 14px; font-size: 13px; font-weight: 600;
+    letter-spacing: .1em; text-transform: uppercase; color: var(--muted);
+  }
+  .nav-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+  .nav-list a {
+    position: relative;
+    display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 12px;
+    padding: 11px 12px; border-radius: var(--radius-md);
+    text-decoration: none; color: var(--ink); font-size: 16px; line-height: 1.3;
+    transition: background .2s, color .2s;
+  }
+  .nav-list a:hover { background: color-mix(in srgb, var(--surface) 70%, transparent); }
+  .nav-num {
+    font: 600 12px/1 var(--mono); padding: 5px 7px; border-radius: 7px;
+    background: var(--accent-soft); color: var(--accent);
+  }
+  .nav-list a[aria-current="true"] {
+    background: var(--surface); color: var(--accent); font-weight: 600; box-shadow: var(--shadow);
+  }
+  .nav-list a[aria-current="true"]::before {
+    content: ""; position: absolute; left: -18px; top: 10px; bottom: 10px;
+    width: 3px; border-radius: 0 3px 3px 0; background: var(--accent);
+  }
+
+  .content { padding: 44px clamp(20px, 5vw, 64px) 80px; min-width: 0; }
+  .content > * { max-width: 880px; }
+
+  /* ---------- Intro ---------- */
+  .intro h1 {
+    margin: 0 0 14px;
+    font-size: clamp(30px, 4.2vw, 44px); line-height: 1.12; letter-spacing: -.025em; font-weight: 700;
+    text-wrap: balance;
+  }
+  .lead { margin: 0 0 28px; font-size: 19px; color: var(--muted); max-width: 64ch; text-wrap: pretty; }
+
+  .notice {
+    display: grid; grid-template-columns: auto 1fr; gap: 16px;
+    padding: 20px 22px; margin-bottom: 36px;
+    background: var(--surface); border: 1px solid var(--line);
+    border-left: 4px solid var(--accent);
+    border-radius: var(--radius-md); box-shadow: var(--shadow);
+  }
+  .notice-icon {
+    display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%;
+    background: var(--accent-soft); color: var(--accent); font: 700 17px/1 var(--font);
+  }
+  .notice strong { display: block; font-size: 17px; margin-bottom: 4px; }
+  .notice p { margin: 0; color: var(--muted); max-width: 70ch; }
+
+  .howto-title { font-size: 22px; margin: 0 0 16px; letter-spacing: -.01em; }
+  .howto {
+    list-style: none; margin: 0 0 12px; padding: 0;
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 12px;
+    counter-reset: how;
+  }
+  .howto li {
+    counter-increment: how; position: relative;
+    padding: 18px 18px 18px; border-radius: var(--radius-md);
+    background: var(--surface); border: 1px solid var(--line);
+  }
+  .howto li::before {
+    content: counter(how);
+    display: grid; place-items: center; width: 28px; height: 28px; margin-bottom: 12px;
+    border-radius: 50%; background: var(--accent); color: var(--accent-ink);
+    font: 700 14px/1 var(--font);
+  }
+  .howto b { display: block; margin-bottom: 4px; }
+  .howto span { color: var(--muted); font-size: 15px; line-height: 1.5; }
+
+  /* ---------- Prompt section ---------- */
+  .prompt {
+    padding: 56px 0 8px; margin-top: 40px;
+    border-top: 1px solid var(--line);
+  }
+  .prompt-head { display: grid; grid-template-columns: 60px 1fr; gap: 18px; align-items: start; }
+  .prompt-icon {
+    display: grid; place-items: center; width: 60px; height: 60px;
+    border-radius: 16px; background: var(--icon-bg); font-size: 28px;
+  }
+  .prompt-kicker {
+    margin: 2px 0 4px; font-size: 13px; font-weight: 700;
+    letter-spacing: .1em; text-transform: uppercase; color: var(--muted);
+  }
+  .prompt h2 {
+    margin: 0 0 6px; font-size: clamp(24px, 2.8vw, 30px); line-height: 1.2; letter-spacing: -.02em;
+    text-wrap: balance;
+  }
+  .prompt-sub { margin: 0; color: var(--muted); font-size: 17px; }
+  .prompt-desc { margin: 20px 0 24px; font-size: 18px; max-width: 68ch; text-wrap: pretty; }
+
+  /* Usage guide */
+  .guide {
+    display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 0;
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: var(--radius-lg); overflow: hidden; margin-bottom: 28px;
+  }
+  .guide-main { padding: 22px 24px; }
+  .guide-side { padding: 22px 24px; background: var(--surface-2); border-left: 1px solid var(--line); }
+  .guide h3 { margin: 0 0 10px; font-size: 15px; font-weight: 700; color: var(--accent); }
+  .guide p { margin: 0 0 20px; color: var(--ink); }
+  .guide-side p:last-child { margin-bottom: 0; }
+  .steps { list-style: none; margin: 0; padding: 0; counter-reset: st; display: grid; gap: 10px; }
+  .steps li {
+    counter-increment: st;
+    display: grid; grid-template-columns: 26px 1fr; gap: 12px; align-items: start;
+    font-size: 15.5px; line-height: 1.55;
+  }
+  .steps li::before {
+    content: counter(st);
+    display: grid; place-items: center; width: 26px; height: 26px; margin-top: 1px;
+    border-radius: 8px; background: var(--accent-soft); color: var(--accent);
+    font: 700 13px/1 var(--mono);
+  }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; list-style: none; }
+  .chips li {
+    padding: 6px 12px; border-radius: 999px; font-size: 14px; font-weight: 500;
+    background: var(--surface); border: 1px solid var(--line);
+  }
+
+  /* Prompt block */
+  .code-label {
+    display: inline-block; margin: 0 0 10px; font-size: 13px; font-weight: 700;
+    letter-spacing: .1em; text-transform: uppercase; color: var(--muted);
+  }
+  .code {
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: var(--radius-lg); box-shadow: var(--shadow); overflow: hidden;
+  }
+  .code-bar {
+    display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;
+    padding: 14px 16px 14px 22px; background: var(--surface-2); border-bottom: 1px solid var(--line);
+  }
+  .code-bar-title {
+    font-size: 13px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted);
+  }
+  .code-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 9px 15px; border-radius: 10px; cursor: pointer;
+    font: 600 14.5px/1 var(--font);
+    color: var(--accent); background: var(--surface);
+    border: 1.5px solid color-mix(in srgb, var(--accent) 40%, transparent);
+    transition: background .2s, border-color .2s, color .2s, transform .12s;
+  }
+  .btn:hover { background: var(--accent-soft); border-color: var(--accent); }
+  .btn:active { transform: translateY(1px); }
+  .btn svg { width: 16px; height: 16px; flex: none; }
+  .btn-primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+  .btn-primary:hover { background: color-mix(in srgb, var(--accent) 88%, #000); border-color: transparent; }
+  .btn[data-state="copied"] { background: var(--ok); border-color: var(--ok); color: #fff; }
+  .btn .chev { transition: transform .35s var(--ease); }
+  .code[data-open="true"] .btn .chev { transform: rotate(180deg); }
+
+  /* Folded strip - visible while collapsed */
+  .code-folded {
+    display: flex; align-items: center; gap: 14px;
+    padding: 16px 22px; color: var(--muted); font-size: 15px;
+    background:
+      repeating-linear-gradient(180deg, transparent 0 7px, color-mix(in srgb, var(--line) 70%, transparent) 7px 8px),
+      var(--code-bg);
+    background-size: 100% 8px, auto;
+    background-repeat: no-repeat;
+    background-position: 0 100%;
+  }
+  .code-folded .stack {
+    flex: none; width: 34px; height: 28px; position: relative;
+  }
+  .code-folded .stack i {
+    position: absolute; left: 0; right: 0; height: 5px; border-radius: 3px;
+    background: color-mix(in srgb, var(--muted) 35%, transparent);
+  }
+  .code-folded .stack i:nth-child(1) { top: 3px; right: 6px; }
+  .code-folded .stack i:nth-child(2) { top: 12px; }
+  .code-folded .stack i:nth-child(3) { top: 21px; right: 12px; }
+  .code[data-open="true"] .code-folded { display: none; }
+
+  /* Smooth height collapse via grid rows */
+  .code-body {
+    display: grid; grid-template-rows: 0fr;
+    transition: grid-template-rows .45s var(--ease);
+  }
+  .code[data-open="true"] .code-body { grid-template-rows: 1fr; }
+  .code-body > div { overflow: hidden; min-height: 0; }
+  .code-body pre {
+    margin: 0; padding: 24px 26px 28px;
+    font: 400 13.5px/1.75 var(--mono);
+    white-space: pre-wrap; word-break: break-word; overflow-wrap: anywhere;
+    color: var(--ink); background: var(--code-bg);
+    tab-size: 2;
+  }
+  mark.fill {
+    background: var(--fill-bg); color: var(--fill-ink);
+    padding: 1px 4px; border-radius: 5px; font-weight: 600;
+    -webkit-box-decoration-break: clone; box-decoration-break: clone;
+  }
+
+  /* ---------- Footer & toast ---------- */
+  .footer {
+    margin-top: 64px; padding-top: 24px; border-top: 1px solid var(--line);
+    color: var(--muted); font-size: 14.5px;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  .toast {
+    position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom, 0px)); z-index: 50;
+    transform: translate(-50%, 20px); opacity: 0; pointer-events: none;
+    padding: 12px 18px; border-radius: 12px;
+    background: var(--ink); color: var(--bg); font-weight: 600; font-size: 15px;
+    box-shadow: 0 12px 30px -10px rgb(0 0 0 / .4);
+    transition: opacity .25s, transform .35s var(--ease);
+  }
+  .toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 960px) {
+    :root { --header-h: 60px; }
+    .layout { grid-template-columns: 1fr; }
+    .sidebar {
+      position: sticky; top: calc(var(--header-h) + env(safe-area-inset-top, 0px)); z-index: 20;
+      height: auto; padding: 10px 12px;
+      border-right: 0; border-bottom: 1px solid var(--line);
+      background: color-mix(in srgb, var(--bg) 88%, transparent);
+      backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+      overflow-x: auto; overflow-y: hidden; scrollbar-width: none;
+    }
+    .sidebar::-webkit-scrollbar { display: none; }
+    .sidebar-title { display: none; }
+    .nav-list { display: flex; gap: 6px; width: max-content; }
+    .nav-list a { padding: 8px 12px; font-size: 14.5px; white-space: nowrap; }
+    .nav-list a[aria-current="true"]::before { display: none; }
+    html { scroll-padding-top: calc(var(--header-h) + 76px); }
+    .guide { grid-template-columns: 1fr; }
+    .guide-side { border-left: 0; border-top: 1px solid var(--line); }
+  }
+  @media (max-width: 560px) {
+    .brand span:last-child { font-size: 17px; }
+    .lang button { min-width: 48px; padding: 7px 10px; font-size: 14px; }
+    .prompt-head { grid-template-columns: 48px 1fr; gap: 14px; }
+    .prompt-icon { width: 48px; height: 48px; font-size: 22px; border-radius: 13px; }
+    .code-bar { padding: 12px 14px; }
+    .code-actions { width: 100%; }
+    .code-actions .btn { flex: 1; justify-content: center; }
+    .code-body pre { padding: 18px 16px 22px; font-size: 12.5px; }
+    .guide-main, .guide-side { padding: 18px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after { transition-duration: .01ms !important; animation-duration: .01ms !important; }
+  }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <a class="brand" href="#top"><span class="brand-mark" aria-hidden="true">⚡</span><span>PPC Prompt Library</span></a>
+  <div class="lang" role="group" aria-label="Language" data-lang="ru">
+    <span class="lang-thumb" aria-hidden="true"></span>
+    <button type="button" data-set-lang="ru" aria-pressed="true">RU</button>
+    <button type="button" data-set-lang="en" aria-pressed="false">EN</button>
+  </div>
+</header>
+
+<div class="layout">
+  <nav class="sidebar" id="sidebar">
+    <p class="sidebar-title" data-i18n="sidebarTitle"></p>
+    <ol class="nav-list" id="nav"></ol>
+  </nav>
+
+  <main class="content" id="top">
+    <section class="intro">
+      <h1 data-i18n="heroTitle"></h1>
+      <p class="lead" data-i18n="heroLead"></p>
+
+      <aside class="notice">
+        <span class="notice-icon" aria-hidden="true">i</span>
+        <div>
+          <strong data-i18n="noticeTitle"></strong>
+          <p data-i18n="noticeText"></p>
+        </div>
+      </aside>
+
+      <h2 class="howto-title" data-i18n="howTitle"></h2>
+      <ol class="howto" id="howto"></ol>
+    </section>
+
+    <div id="prompts"></div>
+
+    <footer class="footer"><p data-i18n="footer"></p></footer>
+  </main>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="prompts.js"></script>
+<script>
+(function () {
+  "use strict";
+
+  /* ---------- Interface texts ---------- */
+  var I18N = {
+    ru: {
+      docTitle: "PPC Prompt Library - промты для Claude",
+      navLabel: "Промты",
+      sidebarTitle: "Библиотека промтов",
+      heroTitle: "Промты для Claude в работе с Google Ads",
+      heroLead: "Рабочие промты PPC-специалиста: анализ бренда и сайта, объявления, товарный фид. Скопируйте промт, заполните поля и отправьте в Claude.",
+      noticeTitle: "Промты написаны для Claude",
+      noticeText: "Все промты созданы и протестированы в Claude (claude.ai). В других ИИ, например ChatGPT или Gemini, результат может отличаться: модели по-разному выполняют пошаговые инструкции, правила форматирования и остановки для выбора.",
+      howTitle: "Как пользоваться",
+      howSteps: [
+        ["Выберите промт", "В меню или ниже на странице. У каждого промта есть описание: для чего он и что подготовить."],
+        ["Скопируйте", "Кнопка «Копировать» работает и в свёрнутом виде. Чтобы прочитать текст, нажмите «Показать промт»."],
+        ["Заполните поля", "Поля для заполнения подсвечены жёлтым: ссылка на сайт, файлы, рынок."],
+        ["Отправьте в Claude", "Вставьте промт в новый чат. Для большинства промтов нужен включённый веб-поиск."]
+      ],
+      kicker: "Промт",
+      whenLabel: "Когда использовать",
+      stepsLabel: "Как пользоваться",
+      needsLabel: "Что понадобится",
+      codeLabel: "Промт",
+      codeTitle: "Скопировать и заполнить",
+      show: "Показать промт",
+      hide: "Свернуть промт",
+      copy: "Копировать",
+      copied: "Скопировано",
+      toast: "Промт скопирован",
+      copyFail: "Не удалось скопировать - разверните промт и выделите текст вручную",
+      folded: function (n) {
+        var m10 = n % 10, m100 = n % 100, w;
+        if (m10 === 1 && m100 !== 11) w = "строка";
+        else if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) w = "строки";
+        else w = "строк";
+        return "Промт свёрнут - " + n + " " + w + ". Копирование работает и без разворачивания.";
+      },
+      footer: "PPC Prompt Library. Промты рассчитаны на Claude - в других ИИ результаты могут отличаться."
+    },
+    en: {
+      docTitle: "PPC Prompt Library - prompts for Claude",
+      navLabel: "Prompts",
+      sidebarTitle: "Prompt library",
+      heroTitle: "Claude prompts for Google Ads work",
+      heroLead: "Working prompts for PPC specialists: brand and website analysis, ad copy, product feed. Copy a prompt, fill in the fields and send it to Claude.",
+      noticeTitle: "These prompts are written for Claude",
+      noticeText: "Every prompt was built and tested in Claude (claude.ai). In other AI tools such as ChatGPT or Gemini, results may differ: models follow step-by-step instructions, formatting rules and selection stops differently.",
+      howTitle: "How to use",
+      howSteps: [
+        ["Pick a prompt", "From the menu or further down the page. Each prompt explains what it is for and what to prepare."],
+        ["Copy it", "The Copy button works even while the prompt is collapsed. Click Show prompt to read the text."],
+        ["Fill in the fields", "Fields to fill in are highlighted in yellow: site link, files, market."],
+        ["Send it to Claude", "Paste the prompt into a new chat. Most prompts need web search turned on."]
+      ],
+      kicker: "Prompt",
+      whenLabel: "When to use",
+      stepsLabel: "How to use",
+      needsLabel: "What you need",
+      codeLabel: "Prompt",
+      codeTitle: "Copy and fill in",
+      show: "Show prompt",
+      hide: "Hide prompt",
+      copy: "Copy",
+      copied: "Copied",
+      toast: "Prompt copied",
+      copyFail: "Copy failed - expand the prompt and select the text manually",
+      folded: function (n) {
+        return "Prompt collapsed - " + n + " lines. Copy works without expanding it.";
+      },
+      footer: "PPC Prompt Library. Prompts are designed for Claude - results in other AI tools may differ."
+    }
+  };
+
+  var ICON_COPY = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg>';
+  var ICON_CHECK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+  var ICON_CHEV = '<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
+
+  var PROMPTS = window.PROMPTS || [];
+  var openIds = new Set();
+  var lang = detectLang();
+  var observer = null;
+  var toastTimer = null;
+
+  /* ---------- Helpers ---------- */
+  function store(key, value) {
+    try {
+      if (value === undefined) return localStorage.getItem(key);
+      localStorage.setItem(key, value);
+    } catch (e) { return null; }
+  }
+
+  function detectLang() {
+    var q = new URLSearchParams(location.search).get("lang");
+    if (q === "ru" || q === "en") return q;
+    var saved = store("ppc-lang");
+    if (saved === "ru" || saved === "en") return saved;
+    return "ru";
+  }
+
+  function esc(s) {
+    return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+
+  function highlight(text) {
+    // Fill-in fields: a [bracket] that follows a colon, e.g. "Сайт клиента: [ВСТАВИТЬ ССЫЛКУ]"
+    return esc(text).replace(/(:[ \t]*)(\[[^\]]+\])/g, '$1<mark class="fill">$2</mark>');
+  }
+
+  function t(key) { return I18N[lang][key]; }
+
+  function showToast(msg) {
+    var el = document.getElementById("toast");
+    el.textContent = msg;
+    el.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { el.classList.remove("show"); }, 2200);
+  }
+
+  function copyText(text) {
+    if (navigator.clipboard && window.isSecureContext) {
+      return navigator.clipboard.writeText(text).then(function () { return true; }, fallback);
+    }
+    return Promise.resolve(fallback());
+    function fallback() {
+      try {
+        var ta = document.createElement("textarea");
+        ta.value = text;
+        ta.setAttribute("readonly", "");
+        ta.style.position = "fixed";
+        ta.style.opacity = "0";
+        document.body.appendChild(ta);
+        ta.select();
+        var ok = document.execCommand("copy");
+        document.body.removeChild(ta);
+        return ok;
+      } catch (e) { return false; }
+    }
+  }
+
+  /* ---------- Rendering ---------- */
+  function renderStatic() {
+    document.documentElement.lang = lang;
+    document.title = t("docTitle");
+    document.querySelectorAll("[data-i18n]").forEach(function (el) {
+      el.textContent = t(el.getAttribute("data-i18n"));
+    });
+    document.getElementById("sidebar").setAttribute("aria-label", t("navLabel"));
+
+    var how = document.getElementById("howto");
+    how.innerHTML = t("howSteps").map(function (s) {
+      return "<li><b>" + esc(s[0]) + "</b><span>" + esc(s[1]) + "</span></li>";
+    }).join("");
+
+    var sw = document.querySelector(".lang");
+    sw.setAttribute("data-lang", lang);
+    sw.querySelectorAll("button").forEach(function (b) {
+      b.setAttribute("aria-pressed", String(b.getAttribute("data-set-lang") === lang));
+    });
+  }
+
+  function renderNav() {
+    document.getElementById("nav").innerHTML = PROMPTS.map(function (p) {
+      var c = p[lang] || p.ru;
+      return '<li><a href="#prompt-' + p.number + '" data-target="prompt-' + p.number + '">' +
+        '<span class="nav-num">' + esc(p.number) + '</span><span>' + esc(c.nav) + '</span></a></li>';
+    }).join("");
+  }
+
+  function renderPrompts() {
+    var wrap = document.getElementById("prompts");
+    wrap.innerHTML = PROMPTS.map(function (p) {
+      var c = p[lang] || p.ru;
+      var text = c.prompt.trim();
+      var lines = text.split("\n").length;
+      var isOpen = openIds.has(p.id);
+      var bodyId = "body-" + p.id;
+
+      return '' +
+        '<section class="prompt" id="prompt-' + p.number + '" aria-labelledby="title-' + p.id + '">' +
+          '<div class="prompt-head">' +
+            '<div class="prompt-icon" aria-hidden="true">' + p.icon + '</div>' +
+            '<div>' +
+              '<p class="prompt-kicker">' + esc(t("kicker")) + ' ' + esc(p.number) + '</p>' +
+              '<h2 id="title-' + p.id + '">' + esc(c.title) + '</h2>' +
+              '<p class="prompt-sub">' + esc(c.subtitle) + '</p>' +
+            '</div>' +
+          '</div>' +
+          '<p class="prompt-desc">' + esc(c.description) + '</p>' +
+
+          '<div class="guide">' +
+            '<div class="guide-main">' +
+              '<h3>' + esc(t("stepsLabel")) + '</h3>' +
+              '<ol class="steps">' + c.steps.map(function (s) { return '<li>' + esc(s) + '</li>'; }).join("") + '</ol>' +
+            '</div>' +
+            '<div class="guide-side">' +
+              '<h3>' + esc(t("whenLabel")) + '</h3>' +
+              '<p>' + esc(c.when) + '</p>' +
+              '<h3>' + esc(t("needsLabel")) + '</h3>' +
+              '<ul class="chips">' + c.needs.map(function (n) { return '<li>' + esc(n) + '</li>'; }).join("") + '</ul>' +
+            '</div>' +
+          '</div>' +
+
+          '<span class="code-label">' + esc(t("codeLabel")) + '</span>' +
+          '<div class="code" data-id="' + p.id + '" data-open="' + isOpen + '">' +
+            '<div class="code-bar">' +
+              '<span class="code-bar-title">' + esc(t("codeTitle")) + '</span>' +
+              '<div class="code-actions">' +
+                '<button type="button" class="btn" data-action="toggle" aria-expanded="' + isOpen + '" aria-controls="' + bodyId + '">' +
+                  ICON_CHEV + '<span>' + esc(isOpen ? t("hide") : t("show")) + '</span></button>' +
+                '<button type="button" class="btn btn-primary" data-action="copy">' +
+                  ICON_COPY + '<span>' + esc(t("copy")) + '</span></button>' +
+              '</div>' +
+            '</div>' +
+            '<div class="code-folded"><span class="stack" aria-hidden="true"><i></i><i></i><i></i></span><span>' + esc(t("folded")(lines)) + '</span></div>' +
+            '<div class="code-body" id="' + bodyId + '"' + (isOpen ? '' : ' inert') + '>' +
+              '<div><pre>' + highlight(text) + '</pre></div>' +
+            '</div>' +
+          '</div>' +
+        '</section>';
+    }).join("");
+  }
+
+  function renderAll() {
+    renderStatic();
+    renderNav();
+    renderPrompts();
+    setupScrollSpy();
+  }
+
+  /* ---------- Scroll spy ---------- */
+  function setActive(id) {
+    document.querySelectorAll("#nav a").forEach(function (a) {
+      var on = a.getAttribute("data-target") === id;
+      if (on) {
+        a.setAttribute("aria-current", "true");
+        if (window.matchMedia("(max-width: 960px)").matches) {
+          a.scrollIntoView({ block: "nearest", inline: "center", behavior: "smooth" });
+        }
+      } else {
+        a.removeAttribute("aria-current");
+      }
+    });
+  }
+
+  function setupScrollSpy() {
+    if (observer) observer.disconnect();
+    if (!("IntersectionObserver" in window)) return;
+    observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) { if (e.isIntersecting) setActive(e.target.id); });
+    }, { rootMargin: "-35% 0px -55% 0px" });
+    document.querySelectorAll(".prompt").forEach(function (s) { observer.observe(s); });
+  }
+
+  /* ---------- Events ---------- */
+  document.addEventListener("click", function (ev) {
+    var langBtn = ev.target.closest("[data-set-lang]");
+    if (langBtn) {
+      var next = langBtn.getAttribute("data-set-lang");
+      if (next !== lang) {
+        lang = next;
+        store("ppc-lang", lang);
+        var url = new URL(location.href);
+        url.searchParams.set("lang", lang);
+        history.replaceState(null, "", url);
+        renderAll();
+      }
+      return;
+    }
+
+    var btn = ev.target.closest("[data-action]");
+    if (!btn) return;
+    var box = btn.closest(".code");
+    var id = box.getAttribute("data-id");
+    var item = PROMPTS.filter(function (p) { return p.id === id; })[0];
+
+    if (btn.getAttribute("data-action") === "toggle") {
+      var open = box.getAttribute("data-open") !== "true";
+      box.setAttribute("data-open", String(open));
+      btn.setAttribute("aria-expanded", String(open));
+      btn.querySelector("span").textContent = open ? t("hide") : t("show");
+      var body = box.querySelector(".code-body");
+      if (open) { body.removeAttribute("inert"); openIds.add(id); }
+      else { body.setAttribute("inert", ""); openIds.delete(id); }
+    }
+
+    if (btn.getAttribute("data-action") === "copy") {
+      var text = (item[lang] || item.ru).prompt.trim();
+      copyText(text).then(function (ok) {
+        if (!ok) { showToast(t("copyFail")); return; }
+        btn.setAttribute("data-state", "copied");
+        btn.innerHTML = ICON_CHECK + "<span>" + esc(t("copied")) + "</span>";
+        showToast(t("toast"));
+        setTimeout(function () {
+          btn.removeAttribute("data-state");
+          btn.innerHTML = ICON_COPY + "<span>" + esc(t("copy")) + "</span>";
+        }, 1800);
+      });
+    }
+  });
+
+  renderAll();
+})();
+</script>
+</body>
+</html>
